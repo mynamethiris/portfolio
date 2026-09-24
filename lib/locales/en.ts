@@ -1,4 +1,3 @@
-// English dictionary: same shape as the Indonesian dictionary.
 import type { IdDict } from "./id";
 
 export const en: IdDict = {

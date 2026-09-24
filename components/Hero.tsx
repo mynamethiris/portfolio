@@ -4,21 +4,22 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowDown } from "@phosphor-icons/react/dist/csr/ArrowDown";
 import { useLang } from "@/lib/i18n";
+import { GITHUB_USERNAME } from "@/lib/site";
 
 const greetings = [
   "Hello, World!",
   "Halo, Dunia!",
-  "こんにちは、世界!",
-  "¡Hola, Mundo!",
+  "こんにちは、世界！",
+  "¡Hola, mundo!",
   "Hallo, Welt!",
   "Bonjour, le monde !",
   "Ciao, mondo!",
   "Olá, mundo!",
   "Привет, мир!",
-  "مرحباً يا عالم !",
-  "你好，世界!",
-  "반갑다 세상아!",
-  "Merhaba, Dünya!",
+  "مرحبًا بالعالم!",
+  "你好，世界！",
+  "안녕하세요, 세상!",
+  "Merhaba, dünya!",
   "Hei, verden!",
   "Ahoj, světe!",
 ];
@@ -44,7 +45,6 @@ function BootGreeting() {
 
   return (
     <span className="inline-block max-w-full font-mono text-2xl sm:text-4xl lg:text-5xl xl:text-[3.4rem] font-bold tracking-tight leading-[1.15]">
-      {/* Screen readers get one stable greeting instead of a rotating one. */}
       <span className="sr-only">{greetings[0]}</span>
       <span aria-hidden="true" className="inline-block max-w-full">
       <AnimatePresence mode="wait">
@@ -94,11 +94,8 @@ function TerminalWindow() {
   return (
     <div className="glass glass-inner-highlight rounded-xl overflow-hidden w-full max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-[38rem] mx-auto lg:mx-0">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06]" aria-hidden="true">
-        <span className="w-3 h-3 rounded-full bg-red-500/80" />
-        <span className="w-3 h-3 rounded-full bg-amber-400/80" />
-        <span className="w-3 h-3 rounded-full bg-emerald-500/70" />
-        <span className="ml-2 text-[11px] font-mono text-[var(--color-text-muted)]">
-          ~
+        <span className="text-[11px] font-mono text-[var(--color-text-muted)]">
+          {GITHUB_USERNAME}@portfolio:~$
         </span>
       </div>
       <div className="p-5 md:p-6 lg:p-8 font-mono text-sm md:text-[15px] lg:text-base leading-relaxed">
@@ -175,7 +172,7 @@ function TerminalWindow() {
 export default function Hero() {
   const { t } = useLang();
   return (
-    <section id="top" className="relative flex min-h-[92dvh] sm:min-h-[100dvh] items-center justify-center pb-12 pt-14 sm:pb-16 sm:pt-16 lg:pb-0 lg:pt-0">
+    <section id="top" className="relative flex min-h-[92svh] sm:min-h-0 lg:min-h-[100svh] items-start lg:items-center justify-center pb-12 pt-14 sm:pb-16 sm:pt-16 lg:pb-0 lg:pt-0">
       <h1 className="sr-only">{t.profile.name} - {t.hero.role}</h1>
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-14 xl:gap-20 items-center">
@@ -190,7 +187,7 @@ export default function Hero() {
                 delay: 0.3,
               }}
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
               {t.hero.badge}
             </motion.div>
 
@@ -255,8 +252,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll cue: the outer div owns the horizontal centering so the
-          motion transform on the inner element never overrides it. */}
       <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 hidden sm:block" aria-hidden="true">
         <motion.div
           initial={{ opacity: 0 }}

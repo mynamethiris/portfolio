@@ -1,4 +1,3 @@
-// Indonesian dictionary: all UI text and content in Bahasa Indonesia.
 export const id = {
   nav: {
     home: "Beranda",

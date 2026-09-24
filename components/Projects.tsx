@@ -14,6 +14,7 @@ import { CaretUp } from "@phosphor-icons/react/dist/csr/CaretUp";
 import SectionWrapper from "./ui/SectionWrapper";
 import SideCarousel from "./ui/SideCarousel";
 import GlassCard from "./ui/GlassCard";
+import ExpandableGrid from "./ui/ExpandableGrid";
 import Image from "next/image";
 import { ExpandableText } from "./ui/Expandable";
 import { useLang } from "@/lib/i18n";
@@ -44,8 +45,6 @@ function formatUpdated(iso: string, lang: "id" | "en", template: string) {
 // Embedded live-site preview with loading state and refresh.
 function LivePreview({ repo, label, refreshLabel, onRefresh }: { repo: Repo; label: string; refreshLabel: string; onRefresh: () => void }) {
   const [loaded, setLoaded] = useState(false);
-  // Browsers rarely fire iframe error events for X-Frame-Options/CSP blocks,
-  // so never leave the spinner hanging: reveal the frame after a timeout.
   useEffect(() => {
     if (loaded) return;
     const t = setTimeout(() => setLoaded(true), 15000);
@@ -82,7 +81,7 @@ function LivePreview({ repo, label, refreshLabel, onRefresh }: { repo: Repo; lab
         }}
         title={refreshLabel}
         aria-label={refreshLabel}
-        className="glass-strong absolute right-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all hover:text-white active:scale-95"
+        className="glass-strong absolute right-2.5 top-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all hover:text-white active:scale-95"
       >
         <ArrowClockwise size={13} aria-hidden="true" />
       </button>
@@ -146,7 +145,7 @@ function ShotPreview({ repo, label, noPreview, refreshLabel, retryLabel, onRefre
         }}
         title={refreshLabel}
         aria-label={refreshLabel}
-        className="glass-strong absolute right-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all hover:text-white active:scale-95"
+        className="glass-strong absolute right-2.5 top-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all hover:text-white active:scale-95"
       >
         <ArrowClockwise size={13} aria-hidden="true" />
       </button>
@@ -160,12 +159,10 @@ function WebsiteCard({ repo }: { repo: Repo }) {
   const updated = formatUpdated(repo.updatedAt, lang, t.projects.updated);
   const [previewKey, setPreviewKey] = useState(0);
   const reloadPreview = () => setPreviewKey((k) => k + 1);
-  // Mount the heavy preview (iframe or screenshot) only once the card
-  // scrolls near the viewport, so a page with 4 sites is not 4 page loads.
   const previewRef = useRef<HTMLDivElement>(null);
   const previewInView = useInView(previewRef, { once: true, margin: "200px" });
   return (
-    <GlassCard noPadding disableTap className="overflow-hidden flex flex-col">
+    <GlassCard noPadding disableTap className="overflow-hidden flex flex-col h-full">
       <div className="shrink-0 border-b border-white/[0.06] bg-white/[0.02]">
         <div className="flex items-center gap-2 px-4 pt-3" aria-hidden="true">
           <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
@@ -175,7 +172,6 @@ function WebsiteCard({ repo }: { repo: Repo }) {
             {repo.homepage.replace(/^https?:\/\//, "")}
           </span>
         </div>
-        {/* 16/10 preview area, full card width */}
         <div ref={previewRef} className="relative m-3 mt-2.5 aspect-[16/10] overflow-hidden rounded-lg bg-black/30">
           {!previewInView ? (
             <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
@@ -309,13 +305,8 @@ export default function Projects({ repos }: { repos: Repo[] }) {
   const [showAllWebsites, setShowAllWebsites] = useState(false);
   const websites = repos.filter((r) => r.homepage);
   const others = repos.filter((r) => !r.homepage);
-  const visibleOthersDesktop = showAllOthers ? others : others.slice(0, 3);
-  const visibleOthersTablet = showAllOthers ? others : others.slice(0, 4);
-  const visibleOthersMobile = showAllOthers ? others : others.slice(0, 4);
-  const visibleWebsites = showAllWebsites ? websites : websites.slice(0, 4);
   const remainingOthersDesktop = others.length - 3;
   const remainingOthersTablet = others.length - 4;
-  const remainingOthersMobile = others.length - 4;
 
   return (
     <SectionWrapper id="proyek">
@@ -346,15 +337,18 @@ export default function Projects({ repos }: { repos: Repo[] }) {
               <Globe size={20} aria-hidden="true" className="text-[var(--color-text-secondary)] shrink-0" />
               {t.projects.websites}
             </h3>
-            <div className="grid gap-4 sm:gap-5 lg:grid-cols-2">
-              {visibleWebsites.map((repo) => (
-                <WebsiteCard key={repo.id} repo={repo} />
-              ))}
-            </div>
+            <ExpandableGrid
+              items={websites}
+              preview={4}
+              open={showAllWebsites}
+              gridClassName="grid gap-4 sm:gap-5 lg:grid-cols-2"
+              keyOf={(repo) => repo.id}
+              render={(repo) => <WebsiteCard repo={repo} />}
+            />
             {websites.length > 4 && (
               <button
                 onClick={() => setShowAllWebsites((v) => !v)}
-                className="glass glass-inner-highlight inline-flex items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98]"
+                className="glass glass-inner-highlight inline-flex min-h-[44px] items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98]"
                 aria-expanded={showAllWebsites}
               >
                 {showAllWebsites ? <CaretUp size={13} aria-hidden="true" /> : <CaretDown size={13} aria-hidden="true" />}
@@ -371,45 +365,43 @@ export default function Projects({ repos }: { repos: Repo[] }) {
               {t.projects.others}
             </h3>
             <SideCarousel
-              items={visibleOthersMobile}
+              items={others}
               keyOf={(repo) => repo.id}
               renderItem={(repo) => <RepoCard repo={repo} />}
               scrollHint={t.projects.scrollHint}
             />
+            <ExpandableGrid
+              items={others}
+              preview={4}
+              open={showAllOthers}
+              className="hidden sm:block lg:hidden"
+              gridClassName="grid grid-cols-2 gap-4"
+              keyOf={(repo) => repo.id}
+              render={(repo) => <RepoCard repo={repo} />}
+            />
             {others.length > 4 && (
               <button
                 onClick={() => setShowAllOthers((v) => !v)}
-                className="glass glass-inner-highlight inline-flex items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98] sm:hidden"
-                aria-expanded={showAllOthers}
-              >
-                {showAllOthers ? <CaretUp size={13} aria-hidden="true" /> : <CaretDown size={13} aria-hidden="true" />}
-                {showAllOthers ? t.projects.collapseOthers : `${t.projects.expandOthers} (${remainingOthersMobile})`}
-              </button>
-            )}
-            <div className="hidden grid-cols-2 gap-4 sm:grid lg:hidden">
-              {visibleOthersTablet.map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
-              ))}
-            </div>
-            {others.length > 4 && (
-              <button
-                onClick={() => setShowAllOthers((v) => !v)}
-                className="glass glass-inner-highlight hidden items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98] sm:inline-flex lg:hidden"
+                className="glass glass-inner-highlight hidden min-h-[44px] items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98] sm:inline-flex lg:hidden"
                 aria-expanded={showAllOthers}
               >
                 {showAllOthers ? <CaretUp size={13} aria-hidden="true" /> : <CaretDown size={13} aria-hidden="true" />}
                 {showAllOthers ? t.projects.collapseOthers : `${t.projects.expandOthers} (${remainingOthersTablet})`}
               </button>
             )}
-            <div className="hidden gap-4 lg:grid lg:grid-cols-3">
-              {visibleOthersDesktop.map((repo) => (
-                <RepoCard key={repo.id} repo={repo} />
-              ))}
-            </div>
+            <ExpandableGrid
+              items={others}
+              preview={3}
+              open={showAllOthers}
+              className="hidden lg:block"
+              gridClassName="grid grid-cols-3 gap-4"
+              keyOf={(repo) => repo.id}
+              render={(repo) => <RepoCard repo={repo} />}
+            />
             {others.length > 3 && (
               <button
                 onClick={() => setShowAllOthers((v) => !v)}
-                className="glass glass-inner-highlight hidden items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98] lg:inline-flex"
+                className="glass glass-inner-highlight hidden min-h-[44px] items-center justify-center gap-1.5 self-center rounded-full px-5 py-2.5 font-mono text-xs tracking-wider text-[var(--color-text-secondary)] transition-all hover:text-[var(--color-text-primary)] active:scale-[0.98] lg:inline-flex"
                 aria-expanded={showAllOthers}
               >
                 {showAllOthers ? <CaretUp size={13} aria-hidden="true" /> : <CaretDown size={13} aria-hidden="true" />}

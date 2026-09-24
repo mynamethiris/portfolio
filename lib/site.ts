@@ -1,5 +1,3 @@
-// Site-wide constants shared by server and client components.
-// Values can be overridden with environment variables without code changes.
 export const GITHUB_USERNAME =
   process.env.NEXT_PUBLIC_GITHUB_USERNAME || "mynamethiris";
 

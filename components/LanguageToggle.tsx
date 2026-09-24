@@ -1,6 +1,7 @@
 "use client";
 import { useLang } from "@/lib/i18n";
-// ID/EN language switcher.
+
+// ID/EN switcher: compact pills on mobile, hit area stretched to 44px by ::after.
 export default function LanguageToggle({ compact = false }: { compact?: boolean }) {
   const { lang, setLang } = useLang();
   const btn = (l: "id" | "en", label: string) => (
@@ -8,8 +9,14 @@ export default function LanguageToggle({ compact = false }: { compact?: boolean 
       key={l}
       onClick={() => setLang(l)}
       aria-pressed={lang === l}
-      className={`px-2.5 py-1 rounded-full text-[11px] font-mono tracking-wider transition-all duration-300 ${
-        lang === l ? "bg-white/15 text-white" : "text-[var(--color-text-muted)] hover:text-white"
+      className={`relative rounded-full font-mono tracking-wider transition-all duration-300 after:absolute after:content-[''] ${
+        compact
+          ? "h-7 min-w-[30px] px-1.5 text-[10px] after:-inset-2"
+          : "h-9 min-w-[38px] px-2 text-[11px] after:-inset-x-1 after:-inset-y-1"
+      } ${
+        lang === l
+          ? "bg-white/15 text-white"
+          : "text-[var(--color-text-muted)] hover:text-white"
       }`}
     >
       {label}

@@ -28,10 +28,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Desktop + Tablet landscape: pill nav on top.
-          The fixed wrapper owns the centering so the motion transform
-          never overrides the Tailwind translate. */}
-      <div className="fixed top-4 lg:top-6 left-1/2 z-50 -translate-x-1/2 hidden md:block max-w-[95vw]">
+      <div className="fixed top-4 lg:top-6 left-1/2 z-50 -translate-x-1/2 hidden lg:block max-w-[95vw]">
         <motion.nav
           className="flex items-center gap-2"
           initial={{ opacity: 0, y: -20 }}
@@ -56,29 +53,26 @@ export default function Navbar() {
         </motion.nav>
       </div>
 
-      {/* Mobile: floating language switcher (top-right) so the bottom bar
-          stays a single row that fits all 8 icons without scrolling. */}
-      <div className="fixed top-3 right-3 z-50 md:hidden">
+      <div className="fixed top-3 right-3 z-50 lg:hidden">
         <LanguageToggle compact />
       </div>
 
-      {/* Mobile + small tablet portrait: single-row bottom bar, all icons fit */}
       <motion.nav
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         aria-label="Mobile navigation"
       >
-        <div className="mx-3 mb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="glass-strong rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center px-1.5 py-1">
+        <div className="mx-2 mb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="glass-strong rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center px-1 py-1">
             {navItems.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 title={link.label}
                 aria-label={link.label}
-                className="flex flex-1 min-w-0 items-center justify-center py-2 text-[var(--color-text-muted)] transition-all duration-300 hover:text-[var(--color-text-primary)] active:scale-95 rounded-full"
+                className="flex flex-1 min-w-0 min-h-[44px] items-center justify-center py-2 text-[var(--color-text-muted)] transition-all duration-300 hover:text-[var(--color-text-primary)] active:scale-95 rounded-full"
               >
                 <link.icon size={19} weight="light" />
               </a>

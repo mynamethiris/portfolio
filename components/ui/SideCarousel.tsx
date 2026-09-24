@@ -11,12 +11,16 @@ interface Props<T> {
   scrollHint: string;
 }
 
-// Horizontal mobile carousel with edge indicator and reappearing scroll hint.
-// Hidden on sm and up (grid takes over there).
+// Horizontal mobile carousel with edge indicator and a tappable hint pill.
+// overflow-x-clip keeps the full-bleed track (-mx-5) and the edge fade from
+// widening the page. `clip` (not `hidden`) is deliberate: vertical overflow
+// stays visible so the hint is never cut off, and fixed descendants are
+// unaffected. The hint stays visible whenever more cards lie ahead (not
+// only at the start) and tapping it smooth-scrolls to the next card.
 export default function SideCarousel<T>({ items, keyOf, renderItem, scrollHint }: Props<T>) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const idleTimer = useRef<number | null>(null);
-  const atStartRef = useRef(true);
+  const atEndRef = useRef(false);
   const [canScroll, setCanScroll] = useState(false);
   const [showHint, setShowHint] = useState(true);
 
@@ -29,27 +33,39 @@ export default function SideCarousel<T>({ items, keyOf, renderItem, scrollHint }
 
   const armIdle = useCallback(() => {
     clearIdle();
-    // Only re-show the hint if the user is still at the start; otherwise
-    // the hint would pop back up mid-carousel after 3 idle seconds.
     idleTimer.current = window.setTimeout(() => {
-      if (atStartRef.current) setShowHint(true);
+      if (!atEndRef.current) setShowHint(true);
     }, 3000);
   }, [clearIdle]);
+
+  const updateFromEl = useCallback((el: HTMLDivElement) => {
+    const atEnd = el.scrollWidth - el.clientWidth - el.scrollLeft <= 12;
+    atEndRef.current = atEnd;
+    setShowHint(!atEnd);
+  }, []);
 
   const onScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
-    const atStart = el.scrollLeft <= 12;
-    atStartRef.current = atStart;
-    setShowHint(atStart);
-    setCanScroll(el.scrollWidth - el.clientWidth - el.scrollLeft > 12);
+    updateFromEl(el);
     armIdle();
+  };
+
+  const scrollNext = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const first = el.firstElementChild as HTMLElement | null;
+    const step = (first ? first.clientWidth : el.clientWidth * 0.8) + 12;
+    el.scrollBy({ left: step, behavior: "smooth" });
   };
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const measure = () => setCanScroll(el.scrollWidth - el.clientWidth > 12);
+    const measure = () => {
+      setCanScroll(el.scrollWidth - el.clientWidth > 12);
+      updateFromEl(el);
+    };
     measure();
     armIdle();
     const ro = new ResizeObserver(measure);
@@ -60,15 +76,11 @@ export default function SideCarousel<T>({ items, keyOf, renderItem, scrollHint }
       window.removeEventListener("resize", measure);
       clearIdle();
     };
-  }, [items.length, armIdle, clearIdle]);
+  }, [items.length, armIdle, clearIdle, updateFromEl]);
 
   if (items.length === 0) return null;
 
   return (
-    // overflow-x-clip keeps the full-bleed carousel (-mx-5) and the edge fade
-    // from widening the page on phones. `clip` (not `hidden`) is deliberate:
-    // vertical overflow stays visible so the -bottom-1 scroll hint is never
-    // cut off, and no new containing block traps fixed-position descendants.
     <div className="relative overflow-x-clip sm:hidden">
       <div
         ref={scrollRef}
@@ -76,9 +88,16 @@ export default function SideCarousel<T>({ items, keyOf, renderItem, scrollHint }
         className="scrollbar-none -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-px-5 px-5 pb-1"
       >
         {items.map((item, i) => (
-          <div key={keyOf(item, i)} className="w-[80vw] max-w-[300px] shrink-0 snap-start">
+          <motion.div
+            key={keyOf(item, i)}
+            className="w-[80vw] max-w-[300px] shrink-0 snap-start"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: Math.min(i, 4) * 0.05 }}
+          >
             {renderItem(item, i)}
-          </div>
+          </motion.div>
         ))}
       </div>
       {canScroll && (
@@ -86,18 +105,21 @@ export default function SideCarousel<T>({ items, keyOf, renderItem, scrollHint }
       )}
       <AnimatePresence>
         {showHint && canScroll && (
-          <motion.div
+          <motion.button
             key="scroll-hint"
-            className="pointer-events-none absolute -bottom-1 right-1"
+            type="button"
+            onClick={scrollNext}
+            className="absolute -bottom-1 right-1"
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 12 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            aria-label={scrollHint}
           >
-            <span className="glass-strong inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] tracking-wider text-[var(--color-text-secondary)]">
+            <span className="glass-strong inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[10px] tracking-wider text-[var(--color-text-secondary)] transition-transform active:scale-95">
               {scrollHint} <ArrowRight size={12} />
             </span>
-          </motion.div>
+          </motion.button>
         )}
       </AnimatePresence>
     </div>

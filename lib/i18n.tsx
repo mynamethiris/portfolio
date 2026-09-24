@@ -1,4 +1,3 @@
-// Language context with localStorage persistence and html lang sync.
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -15,7 +14,7 @@ const Ctx = createContext<{ lang: Lang; setLang: (l: Lang) => void; t: Dict }>({
   t: id,
 });
 
-// Language context with localStorage persistence and html lang sync.
+// Language provider: restores saved language and keeps html lang in sync.
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("id");
   useEffect(() => {
@@ -39,4 +38,5 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   return <Ctx.Provider value={{ lang, setLang, t: lang === "id" ? id : en }}>{children}</Ctx.Provider>;
 }
 
+// Read active language and dictionary from context.
 export const useLang = () => useContext(Ctx);

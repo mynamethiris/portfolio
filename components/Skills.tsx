@@ -27,7 +27,7 @@ function levelStyle(lvl: string) {
   return style;
 }
 
-// Skills grid with level bars.
+// Skills grid: level bars mapped from localized level labels.
 export default function Skills() {
   const { t } = useLang();
   const skills = t.skillList;
@@ -65,13 +65,11 @@ export default function Skills() {
             return (
               <motion.div
                 key={skill.name}
-                className={`glass glass-inner-highlight glass-card-hover rounded-xl px-4 py-3.5 flex flex-col gap-2.5 cursor-pointer min-w-0${isLast ? " sm:col-span-2 lg:col-span-1" : ""}`}
+                className={`glass glass-inner-highlight glass-card-hover rounded-xl px-4 py-3.5 flex flex-col gap-2.5 min-w-0${isLast ? " sm:col-span-2 lg:col-span-1" : ""}`}
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
               >
                 <span className="text-xs sm:text-sm font-medium leading-snug line-clamp-2 min-h-8">{skill.name}</span>
                 <div className="w-full h-1 rounded-full bg-white/[0.06] overflow-hidden">

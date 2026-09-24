@@ -6,6 +6,7 @@ import "./globals.css";
 import Starfield from "@/components/Starfield";
 import Navbar from "@/components/Navbar";
 import { LanguageProvider } from "@/lib/i18n";
+import MotionProvider from "@/components/MotionProvider";
 import { SITE_OWNER, SITE_URL, THEME_COLOR } from "@/lib/site";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -89,14 +90,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Lewati ke konten
         </a>
-        <LanguageProvider>
-          <Starfield />
-          <Navbar />
-          <div id="konten" className="relative z-10 min-h-screen">
-            {children}
-          </div>
-          <Analytics />
-        </LanguageProvider>
+        <MotionProvider>
+          <LanguageProvider>
+            <Starfield />
+            <Navbar />
+            <div id="konten" className="relative z-10 min-h-screen">
+              {children}
+            </div>
+            <Analytics />
+          </LanguageProvider>
+        </MotionProvider>
       </body>
     </html>
   );

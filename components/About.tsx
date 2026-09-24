@@ -31,7 +31,6 @@ function JourneyModal({ paragraphs, summary, isInView, title, close, tapHint }: 
         setOpen(false);
         return;
       }
-      // Simple focus trap: keep Tab cycling inside the dialog.
       if (e.key === "Tab") {
         const root = dialogRef.current;
         if (!root) return;
@@ -62,7 +61,6 @@ function JourneyModal({ paragraphs, summary, isInView, title, close, tapHint }: 
 
   return (
     <>
-      {/* Desktop: clickable story card */}
       <button
         onClick={() => setOpen(true)}
         className="hidden h-full w-full cursor-pointer text-left lg:block"
@@ -70,7 +68,7 @@ function JourneyModal({ paragraphs, summary, isInView, title, close, tapHint }: 
         aria-expanded={open}
         aria-controls="journey-dialog"
       >
-        <GlassCard className="flex h-full flex-col p-6 sm:p-8" hoverLift>
+        <GlassCard className="flex h-full flex-col p-6 sm:p-8">
           <div className="flex h-full flex-col gap-5 text-left">
             <div className="glass w-fit rounded-xl p-2.5" aria-hidden="true">
               <Quotes size={20} className="text-[var(--color-text-secondary)]" />
@@ -85,7 +83,6 @@ function JourneyModal({ paragraphs, summary, isInView, title, close, tapHint }: 
         </GlassCard>
       </button>
 
-      {/* Mobile: button */}
       <motion.button
         onClick={() => setOpen(true)}
         className="glass glass-inner-highlight rounded-xl px-6 py-4 text-sm font-medium text-[var(--color-text-primary)] flex items-center justify-center gap-2 cursor-pointer w-full lg:hidden"
@@ -101,72 +98,70 @@ function JourneyModal({ paragraphs, summary, isInView, title, close, tapHint }: 
         {title}
       </motion.button>
 
-      {/* Portal overlay keeps the modal above the navbar stacking context. */}
       {mounted && createPortal(
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-4 sm:p-6 lg:p-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            role="dialog"
-            aria-modal="true"
-            aria-label={title}
-            id="journey-dialog"
-            ref={dialogRef}
-          >
-            <div className="fixed inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setOpen(false)} />
+        <AnimatePresence>
+          {open && (
             <motion.div
-              className="relative m-auto flex max-h-[88dvh] w-full max-w-2xl flex-col lg:max-w-4xl"
-              initial={{ scale: 0.92, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.92, opacity: 0, y: 20 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto p-4 sm:p-6 lg:p-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={title}
+              id="journey-dialog"
+              ref={dialogRef}
             >
-              {/* Solid panel so page text does not bleed through */}
-              <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-[0_24px_80px_rgba(0,0,0,0.65)]">
-                <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4 sm:px-8">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="glass hidden rounded-xl p-2 sm:block" aria-hidden="true">
-                      <Path size={16} className="text-[var(--color-text-secondary)]" />
-                    </span>
-                    <h3 className="truncate text-base font-semibold sm:text-lg">{title}</h3>
-                  </div>
-                  <button
-                    ref={closeRef}
-                    onClick={() => setOpen(false)}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-all hover:bg-white/10 hover:text-white"
-                    aria-label={close}
-                  >
-                    <X size={14} aria-hidden="true" />
-                  </button>
-                </div>
-                <div className="scrollbar-none flex flex-col gap-6 overflow-y-auto p-5 sm:p-8 lg:p-10">
-                  {paragraphs.map((p, i) => (
-                    <div key={`para-${i}`} className="flex items-start gap-4">
-                      <span className="mt-0.5 shrink-0 font-mono text-[11px] tracking-wider text-[var(--color-text-muted)]" aria-hidden="true">
-                        {String(i + 1).padStart(2, "0")}
+              <div className="fixed inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setOpen(false)} />
+              <motion.div
+                className="relative m-auto flex max-h-[88svh] w-full max-w-2xl flex-col lg:max-w-4xl"
+                initial={{ scale: 0.92, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.92, opacity: 0, y: 20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-[0_24px_80px_rgba(0,0,0,0.65)]">
+                  <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-4 sm:px-8">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="glass hidden rounded-xl p-2 sm:block" aria-hidden="true">
+                        <Path size={16} className="text-[var(--color-text-secondary)]" />
                       </span>
-                      <p className="text-sm leading-relaxed text-[var(--color-text-secondary)] md:text-[15px]">
-                        {p}
-                      </p>
+                      <h3 className="truncate text-base font-semibold sm:text-lg">{title}</h3>
                     </div>
-                  ))}
+                    <button
+                      ref={closeRef}
+                      onClick={() => setOpen(false)}
+                      className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-[var(--color-text-muted)] transition-all hover:bg-white/10 hover:text-white"
+                      aria-label={close}
+                    >
+                      <X size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div className="scrollbar-none flex flex-col gap-6 overflow-y-auto p-5 sm:p-8 lg:p-10">
+                    {paragraphs.map((p, i) => (
+                      <div key={`para-${i}`} className="flex items-start gap-4">
+                        <span className="mt-0.5 shrink-0 font-mono text-[11px] tracking-wider text-[var(--color-text-muted)]" aria-hidden="true">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <p className="text-sm leading-relaxed text-[var(--color-text-secondary)] md:text-[15px]">
+                          {p}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>,
-      document.body
+          )}
+        </AnimatePresence>,
+        document.body
       )}
     </>
   );
 }
 
-// About section with profile card and journey modal.
+// About section: profile card with GitHub stats plus journey story modal.
 export default function About({ githubProfile }: { githubProfile?: GitHubProfile | null }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -202,7 +197,6 @@ export default function About({ githubProfile }: { githubProfile?: GitHubProfile
 
         <div className="flex flex-col gap-6">
           <div className="grid gap-6 lg:grid-cols-5 lg:gap-8">
-            {/* Profile card: avatar overlay with bio and stats */}
             <motion.div
               className="lg:col-span-2 glass glass-inner-highlight overflow-hidden rounded-2xl"
               initial={{ opacity: 0, y: 24 }}
@@ -240,7 +234,7 @@ export default function About({ githubProfile }: { githubProfile?: GitHubProfile
                     { label: t.about.followers, value: githubFollowers },
                     { label: t.about.following, value: githubProfile?.following || 0 },
                   ].map((stat) => (
-                      <div
+                    <div
                       key={stat.label}
                       className="glass rounded-xl px-2 py-3 text-center"
                     >
@@ -252,7 +246,6 @@ export default function About({ githubProfile }: { githubProfile?: GitHubProfile
               </div>
             </motion.div>
 
-            {/* Right column: story card (opens modal on desktop) */}
             <motion.div
               className="flex flex-col gap-6 lg:col-span-3"
               initial={{ opacity: 0, y: 24 }}

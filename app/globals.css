@@ -11,7 +11,7 @@
 
   --color-text-primary: #f0f0f0;
   --color-text-secondary: #888888;
-  --color-text-muted: #767676;
+  --color-text-muted: #7d7d7d;
 
   --color-glass-border: rgba(255, 255, 255, 0.08);
   --color-glass-border-hover: rgba(255, 255, 255, 0.15);
@@ -19,7 +19,6 @@
   --color-glass-fill-hover: rgba(255, 255, 255, 0.06);
 }
 
-/* Base */
 html {
   scroll-behavior: smooth;
 }
@@ -32,13 +31,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Selection */
 ::selection {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -50,14 +47,11 @@ body {
   border-radius: 3px;
 }
 
-/* Frosted dark glass - clean blur without glossy gradients.
-   A dark translucent base keeps panels readable on any background,
-   while a moderate blur + hairline border gives the real glass feel. */
 .glass {
   background-color: rgba(18, 18, 22, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(16px) saturate(1.25);
   -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  backdrop-filter: blur(16px) saturate(1.25);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
     0 8px 24px rgba(0, 0, 0, 0.35);
@@ -68,7 +62,6 @@ body {
   border-color: var(--color-glass-border-hover);
 }
 
-/* Consistent glass card hover - same as certificate card */
 .glass-card-hover {
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid var(--color-glass-border);
@@ -80,15 +73,13 @@ body {
 .glass-strong {
   background-color: rgba(26, 26, 31, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.11);
-  backdrop-filter: blur(20px) saturate(1.3);
   -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.09),
     0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-/* Fallback for browsers without backdrop-filter: solid dark fills
-   so panels never render as plain transparent. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
     background-color: rgba(24, 24, 29, 0.94);
@@ -104,9 +95,6 @@ body {
     inset 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
-/* Line clamp utilities are provided by Tailwind v4 natively. */
-
-/* Source badge marquee: scrolls horizontally when the text overflows */
 @keyframes badge-marquee {
   from { transform: translateX(-50%); }
   to { transform: translateX(0); }
@@ -120,7 +108,6 @@ body {
   mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
 }
 
-/* Scrollbar hide utility */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -129,7 +116,6 @@ body {
   scrollbar-width: none;
 }
 
-/* Subtle section divider - keeps background seamless */
 .section-divider {
   position: relative;
 }
@@ -149,38 +135,28 @@ body {
   );
 }
 
-/* Responsive rhythm: mobile / tablet / desktop differ in components.
-   Global rules only cover what Tailwind cannot. */
-@media (max-width: 767px) {
-  /* Room for the compact single-row mobile bottom nav */
+@media (max-width: 1023px) {
   body {
     padding-bottom: 92px;
   }
-  /* Slightly lighter blur on phones to save GPU */
+}
+@media (max-width: 767px) {
   .glass {
-    backdrop-filter: blur(14px) saturate(1.2);
     -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
   }
   .glass-strong {
-    backdrop-filter: blur(18px) saturate(1.25);
     -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    backdrop-filter: blur(18px) saturate(1.25);
   }
 }
 
-/* Never use content-visibility/auto/contain on sections:
-   it traps fixed elements (modals) inside a new containing block,
-   so modals stop being viewport-relative and lose to the navbar. */
-
 @media (min-width: 768px) and (max-width: 1023px) {
-  /* Tablet: prevent horizontal overflow from carousels / grids */
   body {
     overflow-x: hidden;
   }
 }
 
-/* Grain overlay: above the background canvas and page content,
-   below nav (z-50) and modals, so it never forces extra compositing
-   over fixed chrome. */
 .grain::after {
   content: "";
   position: fixed;
@@ -193,14 +169,12 @@ body {
   background-size: 256px 256px;
 }
 
-/* Visible keyboard focus without changing the mouse-driven visuals. */
 :where(a, button, [role="button"], [tabindex]):focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
-/* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .badge-marquee {
     animation: none;

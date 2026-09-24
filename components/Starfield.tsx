@@ -22,7 +22,7 @@ interface ShootingStar {
   life: number;
   maxLife: number;
   layer: number;
-  fadeIn: number; // 0-1
+  fadeIn: number;
 }
 
 interface Planet {
@@ -74,43 +74,67 @@ export default function Starfield() {
     }
 
     function resize() {
-      w = window.innerWidth;
-      h = window.innerHeight;
+      const nw = window.innerWidth;
+      const nh = window.innerHeight;
+      const firstRun = w === 0 && h === 0;
+      const keepStars = !firstRun && nw === w && Math.abs(nh - h) < 140;
+      w = nw;
+      h = nh;
       pageH = document.documentElement.scrollHeight;
       canvas!.width = Math.floor(w * dpr);
       canvas!.height = Math.floor(h * dpr);
       canvas!.style.width = `${w}px`;
       canvas!.style.height = `${h}px`;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      initStars();
-      initPlanets();
+      if (!keepStars) {
+        initStars();
+        initPlanets();
+      }
     }
 
     function refreshPageHeight() {
       const next = document.documentElement.scrollHeight;
       if (Math.abs(next - pageH) < 50) return;
+      const prev = pageH;
       pageH = next;
-      initStars();
-      initPlanets();
+      if (pageH > prev) appendStars(prev, pageH);
       if (staticMode) drawStatic();
     }
 
+    function makeStar(yMin: number, yMax: number): Star {
+      const layer = Math.random() < 0.5 ? 0 : Math.random() < 0.6 ? 1 : 2;
+      return {
+        x: Math.random() * w,
+        y: yMin + Math.random() * Math.max(1, yMax - yMin),
+        size: Math.random() * (layer === 2 ? 2.2 : layer === 1 ? 1.6 : 1.0) + 0.2,
+        baseOpacity: Math.random() * (layer === 2 ? 0.7 : 0.5) + 0.15,
+        twinkleSpeed: Math.random() * 0.03 + 0.005,
+        twinkleOffset: Math.random() * Math.PI * 2,
+        layer,
+      };
+    }
+
+    function starBudget(): number {
+      return w < 768 ? 220 : 500;
+    }
+
     function initStars() {
-      // Cap star count to stay light on low-end devices
-      const budget = w < 768 ? 220 : 500;
+      const budget = starBudget();
       const totalCount = Math.min(Math.floor((w * pageH) / 10000), budget);
       stars = [];
       for (let i = 0; i < totalCount; i++) {
-        const layer = Math.random() < 0.5 ? 0 : Math.random() < 0.6 ? 1 : 2;
-        stars.push({
-          x: Math.random() * w,
-          y: Math.random() * pageH,
-          size: Math.random() * (layer === 2 ? 2.2 : layer === 1 ? 1.6 : 1.0) + 0.2,
-          baseOpacity: Math.random() * (layer === 2 ? 0.7 : 0.5) + 0.15,
-          twinkleSpeed: Math.random() * 0.03 + 0.005,
-          twinkleOffset: Math.random() * Math.PI * 2,
-          layer,
-        });
+        stars.push(makeStar(0, pageH));
+      }
+    }
+
+    function appendStars(fromY: number, toY: number) {
+      const budget = starBudget();
+      const needed = Math.min(
+        Math.floor((w * (toY - fromY)) / 10000),
+        Math.max(0, budget - stars.length)
+      );
+      for (let i = 0; i < needed; i++) {
+        stars.push(makeStar(fromY, toY));
       }
     }
 
@@ -175,7 +199,7 @@ export default function Starfield() {
         length: Math.random() * 100 + 50,
         speed: Math.random() * 5 + 4,
         angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
-        opacity: 0, // start at 0, fade in
+        opacity: 0,
         life: 0,
         maxLife: Math.random() * 45 + 35,
         layer,
@@ -239,7 +263,6 @@ export default function Starfield() {
 
       const sy = scrollY;
 
-      // --- Stars ---
       for (const s of stars) {
         const screenY = s.y - sy * PARALLAX[s.layer];
         if (screenY < -10 || screenY > h + 10) continue;
@@ -252,7 +275,6 @@ export default function Starfield() {
         ctx.fill();
       }
 
-      // --- Planets ---
       for (const p of planets) {
         p.x += p.driftX;
         p.y += p.driftY;
@@ -267,7 +289,6 @@ export default function Starfield() {
         drawPlanet(p, screenY);
       }
 
-      // --- Shooting stars ---
       if (time >= nextSpawn) {
         spawnShootingStar();
         nextSpawn = time + Math.floor(Math.random() * 120) + 80;
@@ -280,18 +301,15 @@ export default function Starfield() {
 
         const screenY = s.y - sy * PARALLAX[s.layer];
 
-        // Smooth fade in first 15 frames, smooth fade out over remaining life
         const fadeInEnd = 15;
         const fadeOutStart = s.maxLife * 0.6;
 
         if (s.life < fadeInEnd) {
-          // Ease in
           s.fadeIn = s.life / fadeInEnd;
-          s.fadeIn = s.fadeIn * s.fadeIn; // quadratic ease in
+          s.fadeIn = s.fadeIn * s.fadeIn;
         } else if (s.life > fadeOutStart) {
-          // Ease out
           const fadeProgress = (s.life - fadeOutStart) / (s.maxLife - fadeOutStart);
-          s.fadeIn = 1 - fadeProgress * fadeProgress; // quadratic ease out
+          s.fadeIn = 1 - fadeProgress * fadeProgress;
         }
 
         s.opacity = s.fadeIn;
@@ -302,7 +320,6 @@ export default function Starfield() {
         const tailX = s.x - Math.cos(s.angle) * s.length;
         const tailY = screenY - Math.sin(s.angle) * s.length;
 
-        // Trail gradient
         const trailGrad = ctx.createLinearGradient(tailX, tailY, s.x, screenY);
         trailGrad.addColorStop(0, "rgba(255,255,255,0)");
         trailGrad.addColorStop(0.7, `rgba(255,255,255,${s.opacity * 0.3})`);
@@ -315,7 +332,6 @@ export default function Starfield() {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // Glow head with radial gradient
         const headGrad = ctx.createRadialGradient(s.x, screenY, 0, s.x, screenY, 4);
         headGrad.addColorStop(0, `rgba(255,255,255,${s.opacity})`);
         headGrad.addColorStop(1, "rgba(255,255,255,0)");
@@ -358,13 +374,8 @@ export default function Starfield() {
       }
     }
 
-    function onScroll() {
-      scrollY = window.scrollY;
-    }
-
-    // Static mode: draw once per scroll, no animation loop.
     let ticking = false;
-    const onScrollStatic = () => {
+    const onScroll = () => {
       scrollY = window.scrollY;
       if (!staticMode || ticking) return;
       ticking = true;
@@ -405,8 +416,6 @@ export default function Starfield() {
       else startLoop();
     };
 
-    // Keep star coverage in sync when content height changes
-    // (language switch, images loading, sections expanding).
     let heightTimer: number | null = null;
     const heightObserver =
       typeof ResizeObserver !== "undefined"
@@ -424,7 +433,6 @@ export default function Starfield() {
     onScroll();
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("scroll", onScrollStatic, { passive: true });
     window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", onVis);
     if (typeof motionMq.addEventListener === "function") {
@@ -440,7 +448,6 @@ export default function Starfield() {
       stopLoop();
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("scroll", onScrollStatic);
       window.removeEventListener("resize", onResize);
       if (typeof motionMq.removeEventListener === "function") {
         motionMq.removeEventListener("change", onModeChange);

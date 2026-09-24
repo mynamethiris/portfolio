@@ -16,7 +16,7 @@ const iconMap: Record<string, ReactNode> = {
   Telegram: <TelegramLogo size={20} />,
 };
 
-// Contact section with social links.
+// Contact section: social links with icons and handles.
 export default function Contact() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });

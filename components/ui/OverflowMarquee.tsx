@@ -29,8 +29,6 @@ export default function OverflowMarquee({
       const cs = getComputedStyle(o);
       const avail = o.clientWidth - parseFloat(cs.paddingLeft || "0") - parseFloat(cs.paddingRight || "0");
       if (avail <= 0) return;
-      // Measure against the single-line copy when marqueeing, so flipping
-      // modes cannot oscillate the measurement back and forth.
       const probe = overflowRef.current
         ? (inner.firstElementChild as HTMLElement | null)
         : inner;
@@ -42,7 +40,6 @@ export default function OverflowMarquee({
       }
     };
 
-    // Reset to measure mode whenever the text changes.
     overflowRef.current = false;
     setOverflow(false);
     check();

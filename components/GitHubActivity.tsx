@@ -1,4 +1,3 @@
-// GitHub contribution graph built from recent public events.
 "use client";
 
 import { motion, useInView } from "motion/react";
@@ -72,13 +71,11 @@ function isContributionDay(value: unknown): value is ContributionDay {
 function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[]; lang: "id" | "en"; summaryLabel: string }) {
   const [tooltip, setTooltip] = useState<{ day: ContributionDay; x: number; y: number } | null>(null);
 
-  // Group days into weeks
   const weeks: ContributionDay[][] = [];
   let currentWeek: ContributionDay[] = [];
 
-  // Pad start to align with correct day of week
   const firstDay = new Date(days[0]?.date || "");
-  const startDow = (firstDay.getDay() + 6) % 7; // Monday=0
+  const startDow = (firstDay.getDay() + 6) % 7;
   for (let i = 0; i < startDow; i++) {
     currentWeek.push({ date: "", count: 0, level: 0 });
   }
@@ -94,7 +91,6 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
   });
   if (currentWeek.length > 0) weeks.push(currentWeek);
 
-  // Month labels
   const MONTH_LABELS = lang === "id" ? MONTH_LABELS_ID : MONTH_LABELS_EN;
   const DAY_LABELS = lang === "id" ? DAY_LABELS_ID : DAY_LABELS_EN;
   const monthPositions: { label: string; weekIdx: number }[] = [];
@@ -110,8 +106,6 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
     }
   });
 
-  // The grid is decorative for assistive tech: one focusable summary plus a
-  // mouse tooltip, instead of 365 unreachable cells.
   return (
     <div
       className="w-full overflow-x-auto scrollbar-none -mx-1 px-1 rounded-lg"
@@ -120,7 +114,6 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
       tabIndex={0}
     >
       <div aria-hidden="true" className="inline-flex flex-col gap-1.5 min-w-max">
-        {/* Month labels */}
         <div className="flex ml-7 gap-0">
           {monthPositions.map((mp, i) => (
             <div
@@ -133,9 +126,7 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
           ))}
         </div>
 
-        {/* Grid */}
         <div className="flex gap-0">
-          {/* Day labels */}
           <div className="hidden sm:flex flex-col gap-[3px] mr-1.5">
             {DAY_LABELS.map((label, i) => (
               <div key={`${label || "blank"}-${i}`} className="text-[9px] font-mono text-[var(--color-text-muted)] h-[10px] leading-[10px] w-7 text-right">
@@ -144,7 +135,6 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
             ))}
           </div>
 
-          {/* Weeks */}
           <div className="flex gap-[3px]">
             {weeks.map((week, wi) => {
               const weekKey = week.find((d) => d.date)?.date || `pad-${wi}`;
@@ -169,7 +159,6 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
         </div>
       </div>
 
-      {/* Tooltip */}
       {tooltip && (
         <div
           className="fixed z-50 px-2.5 py-1.5 rounded-lg glass text-[11px] font-mono text-[var(--color-text-primary)] pointer-events-none whitespace-nowrap max-w-[90vw] overflow-hidden text-ellipsis"
@@ -184,6 +173,7 @@ function ContributionGrid({ days, lang, summaryLabel }: { days: ContributionDay[
   );
 }
 
+// One-year contribution grid from public GitHub events, with cache and retry.
 export default function GitHubActivity() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -222,7 +212,6 @@ export default function GitHubActivity() {
           }
         }
       } catch {}
-      // Fetch recent events from GitHub API
       const res = await fetch(
         `https://api.github.com/users/${GITHUB_USERNAME}/events/public?per_page=100`,
         { headers: { "User-Agent": "portfolio-builder" }, signal }
@@ -232,21 +221,18 @@ export default function GitHubActivity() {
       const events: unknown = await res.json();
       if (!Array.isArray(events)) throw new Error("Unexpected GitHub API response shape");
 
-      // Aggregate contributions by date (last 365 days, local dates)
       const now = new Date();
       const oneYearAgo = new Date(now);
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
       const counts: Record<string, number> = {};
 
-      // Initialize all days
       const d = new Date(oneYearAgo);
       while (d <= now) {
         counts[localKey(d)] = 0;
         d.setDate(d.getDate() + 1);
       }
 
-      // Count events
       let totalCommits = 0;
       events.forEach((item) => {
         if (typeof item !== "object" || item === null) return;
@@ -272,7 +258,6 @@ export default function GitHubActivity() {
         }
       });
 
-      // Convert to array
       const daysArray: ContributionDay[] = Object.entries(counts).map(([date, count]) => ({
         date,
         count,
@@ -288,8 +273,6 @@ export default function GitHubActivity() {
     } catch (err) {
       if (signal.aborted) return;
       console.warn("[GitHubActivity] Failed to fetch contributions:", err);
-      // Honest empty state: show the grid shape but flag the failure so a
-      // network error is never misread as "0 contributions".
       setDays(buildEmptyYear());
       setTotal(0);
       setError(true);
@@ -322,7 +305,6 @@ export default function GitHubActivity() {
   return (
     <SectionWrapper id="aktivitas">
       <div ref={ref} className="flex flex-col gap-8">
-        {/* Header */}
         <div>
           <motion.div
             className="flex items-center gap-3 mb-4"
@@ -344,7 +326,6 @@ export default function GitHubActivity() {
           </motion.h2>
         </div>
 
-        {/* Contribution card */}
         <motion.div
           className="glass glass-inner-highlight rounded-2xl p-4 sm:p-6 lg:p-8 overflow-hidden"
           initial={{ opacity: 0, y: 24 }}
@@ -352,7 +333,6 @@ export default function GitHubActivity() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
           <div className="flex flex-col gap-5">
-            {/* Stats row */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="glass rounded-xl p-2.5 shrink-0" aria-hidden="true">
@@ -372,7 +352,7 @@ export default function GitHubActivity() {
                   <button
                     type="button"
                     onClick={retry}
-                    className="glass rounded-full px-4 py-2 text-xs font-mono text-[var(--color-text-secondary)] inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)] transition-colors whitespace-nowrap"
+                    className="glass rounded-full min-h-[44px] px-4 py-2 text-xs font-mono text-[var(--color-text-secondary)] inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)] transition-colors whitespace-nowrap"
                   >
                     <ArrowClockwise size={12} aria-hidden="true" /> {t.github.retry}
                   </button>
@@ -381,7 +361,7 @@ export default function GitHubActivity() {
                   href={`https://github.com/${GITHUB_USERNAME}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass rounded-full px-4 py-2 text-xs font-mono text-[var(--color-text-secondary)] flex items-center justify-center sm:justify-start gap-1.5 hover:text-[var(--color-text-primary)] transition-colors whitespace-nowrap"
+                  className="glass rounded-full min-h-[44px] px-4 py-2 text-xs font-mono text-[var(--color-text-secondary)] flex items-center justify-center sm:justify-start gap-1.5 hover:text-[var(--color-text-primary)] transition-colors whitespace-nowrap"
                 >
                   {t.github.profile}
                   <ArrowUpRight size={12} aria-hidden="true" />
@@ -389,7 +369,6 @@ export default function GitHubActivity() {
               </div>
             </div>
 
-            {/* Contribution grid */}
             {loading ? (
               <div className="flex items-center justify-center py-8" role="status" aria-label={t.github.title}>
                 <div className="w-5 h-5 border-2 border-white/10 border-t-white/50 rounded-full animate-spin" />
@@ -398,7 +377,6 @@ export default function GitHubActivity() {
               <ContributionGrid days={days} lang={lang} summaryLabel={summaryLabel} />
             )}
 
-            {/* Legend */}
             <div className="flex items-center justify-end gap-1.5 text-[10px] font-mono text-[var(--color-text-muted)]" aria-hidden="true">
               <span>{t.github.less}</span>
               {LEVEL_COLORS.map((color, i) => (

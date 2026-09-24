@@ -10,7 +10,7 @@ import { GraduationCap } from "@phosphor-icons/react/dist/csr/GraduationCap";
 import { Trophy } from "@phosphor-icons/react/dist/csr/Trophy";
 import { Briefcase } from "@phosphor-icons/react/dist/csr/Briefcase";
 
-// Education timeline plus experience and organization cards.
+// Education section: timeline of schools, then experience and organization cards.
 export default function Education() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -66,7 +66,7 @@ export default function Education() {
                   <span className="w-[9px] h-[9px] rounded-full border-2 border-white/25 bg-[var(--color-surface-0)] ring-4 ring-white/[0.04]" />
                 </div>
 
-                <GlassCard className="p-4 sm:p-6">
+                <GlassCard className="p-4 sm:p-6" disableTap>
                   <div className="flex flex-col gap-3 sm:gap-4">
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start gap-3 min-w-0">
@@ -125,7 +125,7 @@ export default function Education() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             >
-              <GlassCard>
+              <GlassCard disableTap>
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">

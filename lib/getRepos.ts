@@ -1,4 +1,3 @@
-// GitHub repository fetching with embeddability check for live previews.
 import { GITHUB_USERNAME } from "./site";
 
 export interface Repo {
@@ -12,8 +11,6 @@ export interface Repo {
   forks: number;
   topics: string[];
   updatedAt: string;
-  // true when the homepage allows iframe embedding (not blocked by X-Frame-Options / CSP).
-  // Checked automatically at build time, never set manually.
   embeddable: boolean;
 }
 
@@ -28,6 +25,8 @@ export interface GitHubProfile {
 const GITHUB_API = "https://api.github.com";
 const FETCH_TIMEOUT_MS = 8000;
 const EMBED_CHECK_TIMEOUT_MS = 3500;
+const EMBED_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const embedCache = new Map<string, { value: boolean; at: number }>();
 
 function buildHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
@@ -88,7 +87,7 @@ function toRepo(raw: unknown): Repo | null {
 // Check whether a URL allows iframe embedding by reading response headers.
 // Fail-closed: timeout, network error, or a method rejection means "not
 // embeddable", so the UI falls back to a screenshot instead of a dead iframe.
-async function isEmbeddable(url: string): Promise<boolean> {
+async function probeEmbeddable(url: string): Promise<boolean> {
   try {
     let res: Response;
     try {
@@ -100,7 +99,6 @@ async function isEmbeddable(url: string): Promise<boolean> {
     } catch {
       return false;
     }
-    // Some servers reject HEAD (405/501). Retry once with a ranged GET.
     if (res.status === 405 || res.status === 501) {
       try {
         res = await fetchWithTimeout(
@@ -134,6 +132,15 @@ async function isEmbeddable(url: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// Cached embed probe so an hourly revalidation does not re-request every homepage.
+async function isEmbeddable(url: string): Promise<boolean> {
+  const hit = embedCache.get(url);
+  if (hit && Date.now() - hit.at < EMBED_CACHE_TTL_MS) return hit.value;
+  const value = await probeEmbeddable(url);
+  embedCache.set(url, { value, at: Date.now() });
+  return value;
 }
 
 // Fetch public repositories, newest first. Returns [] on any failure.
