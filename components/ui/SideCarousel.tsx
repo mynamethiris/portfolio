@@ -65,7 +65,11 @@ export default function SideCarousel<T>({ items, keyOf, renderItem, scrollHint }
   if (items.length === 0) return null;
 
   return (
-    <div className="relative sm:hidden">
+    // overflow-x-clip keeps the full-bleed carousel (-mx-5) and the edge fade
+    // from widening the page on phones. `clip` (not `hidden`) is deliberate:
+    // vertical overflow stays visible so the -bottom-1 scroll hint is never
+    // cut off, and no new containing block traps fixed-position descendants.
+    <div className="relative overflow-x-clip sm:hidden">
       <div
         ref={scrollRef}
         onScroll={onScroll}
