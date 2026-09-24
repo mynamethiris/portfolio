@@ -56,7 +56,13 @@ export default function Navbar() {
         </motion.nav>
       </div>
 
-      {/* Mobile + small tablet portrait: bottom icon bar */}
+      {/* Mobile: floating language switcher (top-right) so the bottom bar
+          stays a single row that fits all 8 icons without scrolling. */}
+      <div className="fixed top-3 right-3 z-50 md:hidden">
+        <LanguageToggle compact />
+      </div>
+
+      {/* Mobile + small tablet portrait: single-row bottom bar, all icons fit */}
       <motion.nav
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
         initial={{ opacity: 0, y: 40 }}
@@ -64,28 +70,19 @@ export default function Navbar() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         aria-label="Mobile navigation"
       >
-        <div className="mx-2 sm:mx-4 mb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="glass-strong glass-inner-highlight rounded-2xl sm:rounded-3xl px-1.5 sm:px-2 pt-2 pb-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-            <div className="grid grid-cols-8 items-center">
-              {navItems.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  title={link.label}
-                  aria-label={link.label}
-                  className="flex flex-col items-center justify-center gap-1 min-w-0 px-0.5 py-2 min-[520px]:py-1.5 text-[var(--color-text-muted)] transition-all duration-300 hover:text-[var(--color-text-primary)] active:scale-95 rounded-xl sm:rounded-2xl"
-                >
-                  <span className="flex items-center justify-center w-9 h-9 min-[520px]:w-8 min-[520px]:h-7 rounded-full bg-white/[0.05]">
-                    <link.icon size={16} weight="light" />
-                  </span>
-                  {/* Labels hidden on small screens for a compact icon bar */}
-                  <span className="hidden min-[520px]:block text-[8px] sm:text-[8.5px] font-mono tracking-wide leading-none truncate w-full text-center">{link.label}</span>
-                </a>
-              ))}
-            </div>
-            <div className="flex justify-center pt-1">
-              <LanguageToggle compact />
-            </div>
+        <div className="mx-3 mb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="glass-strong rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] flex items-center px-1.5 py-1">
+            {navItems.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                title={link.label}
+                aria-label={link.label}
+                className="flex flex-1 min-w-0 items-center justify-center py-2 text-[var(--color-text-muted)] transition-all duration-300 hover:text-[var(--color-text-primary)] active:scale-95 rounded-full"
+              >
+                <link.icon size={19} weight="light" />
+              </a>
+            ))}
           </div>
         </div>
       </motion.nav>

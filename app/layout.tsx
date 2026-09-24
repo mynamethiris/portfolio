@@ -23,8 +23,8 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_OWNER} (Thiris) | Portfolio`,
-    template: "%s | Thiris",
+    default: "Favian Zufar Niardi (Thiris)",
+    template: "%s | Favian Zufar Niardi (Thiris)",
   },
   description:
     "Portfolio of Favian Zufar Niardi (Thiris), a computer network engineering student focused on networks, servers, and web development.",
@@ -40,13 +40,13 @@ export const metadata: Metadata = {
     alternateLocale: "en_US",
     url: SITE_URL,
     siteName: "Thiris Portfolio",
-    title: `${SITE_OWNER} (Thiris) | Portfolio`,
+    title: "Favian Zufar Niardi (Thiris)",
     description:
       "Portfolio of Favian Zufar Niardi (Thiris), a computer network engineering student focused on networks, servers, and web development.",
   },
   twitter: {
     card: "summary",
-    title: `${SITE_OWNER} (Thiris) | Portfolio`,
+    title: "Favian Zufar Niardi (Thiris)",
     description:
       "Portfolio of Favian Zufar Niardi (Thiris), a computer network engineering student focused on networks, servers, and web development.",
   },

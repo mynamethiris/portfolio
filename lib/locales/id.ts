@@ -143,7 +143,7 @@ export const id = {
       title: "Intro to Software Engineering",
       date: "Mar 2026",
       kind: "featured" as const,
-      description: "Pengantar rekayasa perangkat lunak: SDLC, Git, dan kolaborasi tim.",
+      description: "Mempelajari penggunaan AI Kiro untuk membuat website sederhana, dari merancang prompt hingga mempublikasikannya.",
     },
     {
       id: 2,

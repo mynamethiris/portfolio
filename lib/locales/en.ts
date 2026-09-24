@@ -145,7 +145,7 @@ export const en: IdDict = {
       title: "Intro to Software Engineering",
       date: "Mar 2026",
       kind: "featured" as const,
-      description: "Introduction to software engineering: SDLC, Git, and team collaboration.",
+      description: "Learning to use Kiro AI to build a simple website, from crafting prompts to publishing it.",
     },
     {
       id: 2,

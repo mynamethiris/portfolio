@@ -25,6 +25,8 @@ function previewImage(url: string) {
 }
 
 // Format the repo update date for the active locale.
+// Fixed UTC timezone so server (UTC) and client (local) render identical
+// text and never trigger a hydration mismatch (React error #418).
 function formatUpdated(iso: string, lang: "id" | "en", template: string) {
   if (!iso) return "";
   const d = new Date(iso);
@@ -33,6 +35,7 @@ function formatUpdated(iso: string, lang: "id" | "en", template: string) {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
   if (date === "Invalid Date") return "";
   return template.replace("{date}", date);
@@ -213,7 +216,7 @@ function WebsiteCard({ repo }: { repo: Repo }) {
         ) : (
           <p className="text-sm text-[var(--color-text-muted)] italic">{t.projects.personal}</p>
         )}
-        {updated ? <p className="font-mono text-[10px] tracking-wider text-[var(--color-text-muted)]">{updated}</p> : null}
+        {updated ? <p suppressHydrationWarning className="font-mono text-[10px] tracking-wider text-[var(--color-text-muted)]">{updated}</p> : null}
         <div className="flex flex-wrap gap-2 mt-1">
           <a
             href={repo.homepage}
@@ -287,7 +290,7 @@ function RepoCard({ repo }: { repo: Repo }) {
         <div className="flex flex-wrap items-center gap-2 mt-4 text-xs font-mono text-[var(--color-text-muted)]">
           {repo.stars > 0 && <span className="inline-flex items-center gap-1"><Star size={12} aria-hidden="true" /> {repo.stars}</span>}
           {repo.forks > 0 && <span className="inline-flex items-center gap-1"><GitFork size={12} aria-hidden="true" /> {repo.forks}</span>}
-          {updated ? <span className="inline-flex items-center">{updated}</span> : null}
+          {updated ? <span suppressHydrationWarning className="inline-flex items-center">{updated}</span> : null}
           {repo.topics.slice(0, 3).map((topic) => (
             <span key={topic} className="glass rounded-md px-2 py-0.5">{topic}</span>
           ))}
