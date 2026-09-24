@@ -1,0 +1,231 @@
+@import "tailwindcss";
+
+@theme {
+  --font-jakarta: "Jakarta Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-surface-0: #0a0a0a;
+  --color-surface-1: #111111;
+  --color-surface-2: #1a1a1a;
+  --color-surface-3: #222222;
+
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #888888;
+  --color-text-muted: #767676;
+
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-border-hover: rgba(255, 255, 255, 0.15);
+  --color-glass-fill: rgba(255, 255, 255, 0.03);
+  --color-glass-fill-hover: rgba(255, 255, 255, 0.06);
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-surface-0);
+  color: var(--color-text-primary);
+  font-family: var(--font-jakarta);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-0);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 3px;
+}
+
+/* Liquid glass - slightly more transparent for cards */
+.glass {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--color-glass-border);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+}
+
+/* Apple Liquid Glass - macOS Sequoia / iOS 18 style.
+   Semi-transparent frosted panel. Background IS visible but HEAVILY blurred.
+   The blur itself creates the "hidden" effect. */
+.glass-liquid {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(40px) saturate(1.6) brightness(1.05);
+  -webkit-backdrop-filter: blur(40px) saturate(1.6) brightness(1.05);
+  box-shadow:
+    0 0 0 0.5px rgba(255,255,255,0.08) inset,
+    0 1px 0 0 rgba(255,255,255,0.1) inset,
+    0 8px 32px rgba(0,0,0,0.4),
+    0 2px 8px rgba(0,0,0,0.25);
+  position: relative;
+  overflow: hidden;
+}
+/* Frosted shimmer - top-left light catch */
+.glass-liquid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+/* Top glow line - frosted edge */
+.glass-liquid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 20%);
+  pointer-events: none;
+}
+
+.glass-hover:hover {
+  background: var(--color-glass-fill-hover);
+  border-color: var(--color-glass-border-hover);
+}
+
+/* Consistent glass card hover - same as certificate card */
+.glass-card-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--color-glass-border);
+}
+.glass-card-hover:hover {
+  border-color: var(--color-glass-border-hover);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(32px) saturate(1.4);
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+}
+
+.glass-inner-highlight {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Line clamp utilities are provided by Tailwind v4 natively. */
+
+/* Source badge marquee: scrolls horizontally when the text overflows */
+@keyframes badge-marquee {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.badge-marquee {
+  animation: badge-marquee 12s linear infinite;
+  will-change: transform;
+}
+.badge-marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
+}
+
+/* Scrollbar hide utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Subtle section divider - keeps background seamless */
+.section-divider {
+  position: relative;
+}
+.section-divider::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(80%, 600px);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent
+  );
+}
+
+/* Responsive rhythm: mobile / tablet / desktop differ in components.
+   Global rules only cover what Tailwind cannot. */
+@media (max-width: 767px) {
+  /* Room for the mobile bottom nav */
+  body {
+    padding-bottom: 120px;
+  }
+  /* Lighter blur on phones to save GPU */
+  .glass {
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  }
+  .glass-strong {
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  }
+  .glass-liquid {
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  }
+}
+
+/* Never use content-visibility/auto/contain on sections:
+   it traps fixed elements (modals) inside a new containing block,
+   so modals stop being viewport-relative and lose to the navbar. */
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Tablet: prevent horizontal overflow from carousels / grids */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Grain overlay: above the background canvas and page content,
+   below nav (z-50) and modals, so it never forces extra compositing
+   over fixed chrome. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Visible keyboard focus without changing the mouse-driven visuals. */
+:where(a, button, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .badge-marquee {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
